@@ -1,0 +1,16 @@
+{
+  "name": "helioworldly",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A solar-system companion to Worldly/Outworldly/Innerworldly — find planets, moons, and named surface features.",
+  "workspaces": [
+    "packages/engine",
+    "packages/client"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/engine && npm run build -w packages/client",
+    "dev": "npm run build -w packages/engine && npm run dev -w packages/client",
+    "test": "npm test -w packages/engine",
+    "preview": "npm run preview -w packages/client"
+  }
+}

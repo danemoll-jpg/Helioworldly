@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// Shared global leaderboard, same pattern as Worldly/Outworldly/Innerworldly: one document
+// ("leaderboard/global") holding an array of records, one per distinct combo actually played
+// (quiz mode + which celestial system/view), each record holding only its single best-ever run.
+//
+// Firestore rules can't cheaply validate the SHAPE of each array element without a schema, so
+// this only checks that `records` is a list capped at 200 entries. Known limitation: without
+// server-side auth and Cloud Functions, anyone with the (intentionally public) client config
+// could submit a fabricated score directly via the SDK or REST API. Accepted tradeoff for a
+// casual, account-free leaderboard — consistent with every other app in this series.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /leaderboard/{doc} {
+      allow read: if true;
+      allow write: if request.resource.data.records is list
+                   && request.resource.data.records.size() <= 200;
+    }
+  }
+}

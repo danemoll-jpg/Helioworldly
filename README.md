@@ -1,8 +1,8 @@
 # Helioworldly
 
-**Status: planning only. No code yet.** This repo exists so an idea from a planning
-conversation doesn't get lost before development starts — everything below is a plan, not a
-description of anything built.
+A solar-system companion to Worldly/Outworldly/Innerworldly. **Tier 1 (Planets) is built** — pan
+and zoom NASA/JPL's solar-system montage, find/name/pick the planet you're asked about, no
+timer, no pressure. Moons and surface features (see [BACKLOG.md](./BACKLOG.md)) are next.
 
 ## The idea
 
@@ -112,9 +112,41 @@ unchanged.
 reads as distinct from Outworldly's night-sky-observing framing (this app is about the solar
 system specifically, not deep-sky/celestial-sphere content).
 
+## Architecture
+
+npm-workspaces monorepo, same shape as Worldly/Outworldly/Innerworldly:
+
+- **`packages/engine`** — pure TypeScript, no UI/rendering dependencies. Planet data
+  (`planets.ts`), hit-region geometry (`geometry.ts`), lenient answer matching (`matching.ts`),
+  quiz session tracking (`session.ts`), mastery/weak-spot tracking (`stats.ts`/`weighting.ts`),
+  and the Daily Challenge picker (`dailyChallenge.ts`).
+- **`packages/client`** — React 18 + Vite. `CelestialDiagram` (pan/zoom SVG surface rendering
+  the montage photo plus its hit-region overlays) plus the screens that drive a quiz session
+  (Home → Setup → Quiz → Summary), Learn, Mastery, and Daily Challenge. The photo lives at
+  `packages/client/public/assets/planets-montage.jpg`.
+
+Three quiz modes: **Find it** (named a planet, tap it on the diagram), **Type its name** (a
+planet is highlighted, type its name — typo-tolerant), and **Multiple choice** (highlighted
+planet, pick from 4 name buttons).
+
+## Development
+
+```sh
+npm install
+npm run dev    # builds the engine once, then starts the client dev server
+npm test       # engine unit tests (vitest)
+npm run build  # production build — this is what Netlify runs
+```
+
+## Deployment / publishing status
+
+See [BACKLOG.md](./BACKLOG.md)'s publishing checklist — Netlify config (`netlify.toml`) and
+Firestore rules (`firestore.rules`) are already in the repo, but the real Firebase project and
+Netlify site connection are one-time manual steps still to do before this goes live. Until then
+the app works fully offline (localStorage); only the global leaderboard panel stays in a
+"not live yet" state.
+
 ## Status / next step
 
-Nothing built yet. The natural first step, whenever this gets picked up, is the same as every
-app in this series has started with: source and prepare the first image (the Planets
-family-portrait photo), then build out the engine/client scaffolding the same way
-Worldly → Outworldly → Innerworldly did.
+Tier 1 (Planets) is built. Next: Tier 2 (Moons), then Tier 3 (Surface features, including the
+Apollo landing sites) — tracked in [BACKLOG.md](./BACKLOG.md) so nothing gets lost.
