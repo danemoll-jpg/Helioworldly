@@ -25,7 +25,7 @@ export function DailyChallengeScreen({ onBack }: DailyChallengeScreenProps) {
   return (
     <div className="screen daily-screen">
       <header className="quiz-header">
-        <button type="button" className="btn-link" onClick={onBack}>
+        <button type="button" className="back-link" onClick={onBack}>
           Back
         </button>
         <span>Daily Challenge</span>

@@ -63,7 +63,7 @@ export function QuizScreen({ mode, onFinish, onExit }: QuizScreenProps) {
   return (
     <div className="screen quiz-screen">
       <header className="quiz-header">
-        <button type="button" className="btn-link" onClick={onExit}>
+        <button type="button" className="back-link" onClick={onExit}>
           Exit
         </button>
         <span>
