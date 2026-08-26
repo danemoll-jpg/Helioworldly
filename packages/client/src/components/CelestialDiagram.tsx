@@ -43,15 +43,17 @@ export function CelestialDiagram({
             const isFeedback = feedback?.bodyId === body.id;
             const feedbackClass = isFeedback ? (feedback!.correct ? 'region-correct' : 'region-wrong') : '';
             return (
+              // No <title> here on purpose — a native SVG tooltip on hover would just hand the
+              // player the name they're supposed to be guessing. data-body-id identifies the
+              // region for tooling/tests without being visible to a player.
               <path
                 key={body.id}
+                data-body-id={body.id}
                 d={body.path}
                 className={`diagram-region ${isHighlighted ? 'region-highlighted' : ''} ${feedbackClass}`}
                 onClick={interactive && onBodyClick ? () => onBodyClick(body.id) : undefined}
                 style={{ cursor: interactive && onBodyClick ? 'pointer' : 'default' }}
-              >
-                <title>{body.name}</title>
-              </path>
+              />
             );
           })}
         </g>

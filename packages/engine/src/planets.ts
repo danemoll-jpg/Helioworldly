@@ -1,21 +1,22 @@
-// The 8 planets, hit-tested against NASA/JPL's "Solar System Montage" (PIA03153,
-// https://photojournal.jpl.nasa.gov/catalog/PIA03153 — credit NASA/JPL, public domain US
-// government work). The montage also includes Earth's Moon for scale/context; it's part of the
-// image but intentionally NOT one of these regions — the Moon belongs to the "moons" tier (see
-// BACKLOG.md), not the planets tier.
+// The 8 planets, arranged heliocentrically — the Sun at the center, each planet on its own
+// orbit ring, matching what "Helioworldly" actually implies (v1 used a NASA family-portrait
+// side-by-side layout that never showed the Sun at all — fixed after feedback). Orbit radii and
+// planet sizes are deliberately compressed/non-uniform, not to real scale — a true-to-scale
+// solar system can't fit on one screen (Neptune orbits ~30x farther out than Earth). Earth's
+// Moon is intentionally NOT in this image — it belongs to the "moons" tier (see BACKLOG.md).
 //
-// Regions were measured off the downloaded image itself — same "verify against the real photo"
-// approach Innerworldly used, but automated here (per-planet windowed non-black bounding-box
-// detection, since several planets visually overlap/touch in the montage — see the script noted
-// in BACKLOG.md) rather than hand-eyeballed. Each region is an ellipse (center + rx/ry) in the
-// original image's pixel space, turned into a hit-testable polygon hull via geometry.ts's
-// ellipseHull/ellipsePath. Confirmed by rendering a semi-transparent overlay on the actual photo
-// (same check the rest of the series uses) before trusting these — see BACKLOG.md.
-import { ellipseHull, ellipsePath } from './geometry.js';
+// Every planet (and the Sun) is a real NASA/JPL photo, not an illustration: each planet is
+// cropped from the "Solar System Montage" (PIA03153); the Sun is a Solar Dynamics Observatory
+// photo (PIA26681) — see packages/client/assets-src/README.md for exact sources/credits. Only
+// the orbit rings, starfield, and Saturn's ring graphic are drawn, not photographed. Composited
+// with a one-time Python/Pillow script (not committed, see assets-src/README.md); regions here
+// are simple circles (center + radius) matching where each cropped photo landed in the final
+// 2400x2400 image, confirmed by eye against the actual rendered composite.
+import { circleHull, circlePath } from './geometry.js';
 import { CelestialBodyDef, ViewBox } from './types.js';
 
-export const PLANETS_VIEWBOX: ViewBox = { width: 4500, height: 5600 };
-export const PLANETS_IMAGE_URL = '/assets/planets-montage.jpg';
+export const PLANETS_VIEWBOX: ViewBox = { width: 2400, height: 2400 };
+export const PLANETS_IMAGE_URL = '/assets/planets-heliocentric.jpg';
 
 interface PlanetSeed {
   id: string;
@@ -23,8 +24,7 @@ interface PlanetSeed {
   blurb: string;
   cx: number;
   cy: number;
-  rx: number;
-  ry: number;
+  r: number; // hit-region radius — a bit more generous than the drawn thumbnail for easy tapping
 }
 
 const PLANET_SEEDS: PlanetSeed[] = [
@@ -32,73 +32,65 @@ const PLANET_SEEDS: PlanetSeed[] = [
     id: 'mercury',
     name: 'Mercury',
     blurb: 'The smallest planet and the closest to the Sun — a single day there lasts longer than its whole year.',
-    cx: 798,
-    cy: 503,
-    rx: 128,
-    ry: 235,
+    cx: 1574,
+    cy: 1226,
+    r: 46,
   },
   {
     id: 'venus',
     name: 'Venus',
     blurb: "The hottest planet, thanks to a thick, crushing atmosphere that traps heat — hotter even than Mercury.",
-    cx: 1584,
-    cy: 804,
-    rx: 486,
-    ry: 496,
+    cx: 1475,
+    cy: 1357,
+    r: 63,
   },
   {
     id: 'earth',
     name: 'Earth',
     blurb: 'Our home — the only planet known to have liquid water on its surface and life.',
-    cx: 2407,
-    cy: 1175,
-    rx: 517,
-    ry: 517,
+    cx: 1149,
+    cy: 1431,
+    r: 67,
   },
   {
     id: 'mars',
     name: 'Mars',
     blurb: 'The "Red Planet", colored by iron oxide (rust) in its soil — home to the largest volcano in the solar system.',
-    cx: 3009,
-    cy: 1707,
-    rx: 439,
-    ry: 439,
+    cx: 679,
+    cy: 1374,
+    r: 55,
   },
   {
     id: 'jupiter',
     name: 'Jupiter',
     blurb: 'The largest planet by far — its Great Red Spot is a storm bigger than Earth that has raged for centuries.',
-    cx: 3388,
-    cy: 2757,
-    rx: 834,
-    ry: 862,
+    cx: 393,
+    cy: 1171,
+    r: 137,
   },
   {
     id: 'saturn',
     name: 'Saturn',
     blurb: 'Famous for its bright, wide ring system, made mostly of ice and rock — and light enough to float in water.',
-    cx: 2911,
-    cy: 3667,
-    rx: 611,
-    ry: 611,
+    cx: 660,
+    cy: 891,
+    r: 170, // generous enough to cover the drawn ring graphic, not just the body
   },
   {
     id: 'uranus',
     name: 'Uranus',
     blurb: 'An ice giant that spins almost on its side — its poles take turns facing the Sun over its 84-year orbit.',
-    cx: 2267,
-    cy: 4710,
-    rx: 611,
-    ry: 450,
+    cx: 1291,
+    cy: 781,
+    r: 92,
   },
   {
     id: 'neptune',
     name: 'Neptune',
     blurb: 'The windiest planet — supersonic storms tear across its deep blue, distant atmosphere.',
-    cx: 1303,
-    cy: 4753,
-    rx: 720,
-    ry: 590,
+    cx: 2080,
+    cy: 904,
+    r: 94,
   },
 ];
 
@@ -108,7 +100,7 @@ export const PLANETS: CelestialBodyDef[] = PLANET_SEEDS.map((seed) => ({
   blurb: seed.blurb,
   system: 'planets',
   view: 'planets',
-  path: ellipsePath(seed.cx, seed.cy, seed.rx, seed.ry),
-  hull: ellipseHull(seed.cx, seed.cy, seed.rx, seed.ry),
+  path: circlePath(seed.cx, seed.cy, seed.r),
+  hull: circleHull(seed.cx, seed.cy, seed.r),
   centroid: { x: seed.cx, y: seed.cy },
 }));
