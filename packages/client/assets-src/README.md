@@ -1,16 +1,19 @@
 # Source images (not published)
 
-This folder is outside `public/`, so Vite/Netlify never ships these — they're kept for
-reproducibility if the heliocentric composite (`public/assets/planets-heliocentric.jpg`) ever
-needs regenerating (a different layout, a Tier 2 moons montage cut from the same source, etc.).
+This folder is outside `public/`, so Vite/Netlify never ships these — kept only for
+reproducibility if `public/assets/solar-system.jpg` ever needs regenerating (a resize, a
+recrop, etc.).
 
-- **`planets-montage-source.jpg`** — NASA/JPL's "Solar System Montage" (PIA03153,
-  https://photojournal.jpl.nasa.gov/catalog/PIA03153). Credit: NASA/JPL. Public domain (US
-  government work). Each planet's real-photo cutout in the composite was cropped from this.
-- **`sun-source.jpg`** — NASA/GSFC Solar Dynamics Observatory, AIA 171Å, 2025-09-10 (PIA26681,
-  https://www.jpl.nasa.gov/images/pia26681-image-of-sun-from-nasas-solar-dynamics-observatory/).
-  Credit: NASA/GSFC/Solar Dynamics Observatory. Public domain (US government work).
+- **`solar-system-illustration-source.jpg`** — NASA/JPL's official solar-system illustration
+  (PIA11800, https://science.nasa.gov/photojournal/our-solar-system-features-eight-planets/).
+  Credit: NASA/JPL. Public domain (US government work). NASA's own caption: "intentionally
+  fanciful, as the planets are depicted far closer together than they really are" — the Sun and
+  planets are real mission imagery, composited by NASA/JPL onto an illustrated orbit-grid
+  background, not to true relative scale or spacing. `public/assets/solar-system.jpg` is this
+  same image, just resized down (5775px → 3600px wide) for a smaller download.
 
-The composite itself (orbit rings, starfield, Saturn's ring graphic, planet placement) was
-generated with a one-time Python/Pillow script — not committed, same convention as the
-auto-generated engine data files' own codegen scripts elsewhere in this series.
+v1 of this app instead composited its own heliocentric image from individually-cropped photos
+(NASA/JPL's "Solar System Montage", PIA03153, + a Solar Dynamics Observatory Sun photo,
+PIA26681) — replaced after feedback that the crops looked visibly rough. Superseded, and those
+source files were removed from this folder; PIA03153/PIA26681 credits are noted here only for
+history, and can be re-sourced from NASA's site if that approach is ever revisited.

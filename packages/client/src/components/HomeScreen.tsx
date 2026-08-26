@@ -5,9 +5,10 @@ export interface HomeScreenProps {
   onLearn: () => void;
   onMastery: () => void;
   onDaily: () => void;
+  onLeaderboard: () => void;
 }
 
-export function HomeScreen({ onPlay, onLearn, onMastery, onDaily }: HomeScreenProps) {
+export function HomeScreen({ onPlay, onLearn, onMastery, onDaily, onLeaderboard }: HomeScreenProps) {
   return (
     <div className="start-screen">
       <a className="back-link back-link--floating" href={GAME_HUB_URL}>
@@ -16,9 +17,9 @@ export function HomeScreen({ onPlay, onLearn, onMastery, onDaily }: HomeScreenPr
       <div className="start-screen__card">
         <h1>☀️ Helioworldly</h1>
         <p className="start-screen__subtitle">
-          Learn the solar system — pan and zoom NASA/JPL's real montage photo to find the planet
-          you're asked about, untimed. All 8 planets, with moons and named surface features
-          (including the Apollo landing sites) planned next.
+          Learn the solar system — pan and zoom NASA/JPL's own solar-system illustration to find
+          the planet you're asked about, untimed. All 8 planets, with moons and named surface
+          features (including the Apollo landing sites) planned next.
         </p>
 
         <div className="home-screen__choices">
@@ -41,6 +42,11 @@ export function HomeScreen({ onPlay, onLearn, onMastery, onDaily }: HomeScreenPr
             <span className="home-screen__choice-emoji">🗺️</span>
             <span className="home-screen__choice-title">Mastery map</span>
             <span className="home-screen__choice-sub">Every planet colored by how you've actually done — your personal weak spots.</span>
+          </button>
+          <button type="button" className="home-screen__choice" onClick={onLeaderboard}>
+            <span className="home-screen__choice-emoji">🏆</span>
+            <span className="home-screen__choice-title">Leaderboard</span>
+            <span className="home-screen__choice-sub">Best accuracy, fastest time as a tiebreaker — shared across everyone.</span>
           </button>
         </div>
       </div>

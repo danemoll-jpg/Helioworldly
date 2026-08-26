@@ -7,8 +7,9 @@ import { SummaryScreen } from './components/SummaryScreen.js';
 import { LearnScreen } from './components/LearnScreen.js';
 import { MasteryScreen } from './components/MasteryScreen.js';
 import { DailyChallengeScreen } from './components/DailyChallengeScreen.js';
+import { LeaderboardScreen } from './components/LeaderboardScreen.js';
 
-type Screen = 'home' | 'setup' | 'quiz' | 'summary' | 'learn' | 'mastery' | 'daily';
+type Screen = 'home' | 'setup' | 'quiz' | 'summary' | 'learn' | 'mastery' | 'daily' | 'leaderboard';
 
 export function App() {
   const [screen, setScreen] = useState<Screen>('home');
@@ -23,6 +24,7 @@ export function App() {
           onLearn={() => setScreen('learn')}
           onMastery={() => setScreen('mastery')}
           onDaily={() => setScreen('daily')}
+          onLeaderboard={() => setScreen('leaderboard')}
         />
       )}
 
@@ -48,6 +50,7 @@ export function App() {
       {screen === 'learn' && <LearnScreen onBack={() => setScreen('home')} />}
       {screen === 'mastery' && <MasteryScreen onBack={() => setScreen('home')} />}
       {screen === 'daily' && <DailyChallengeScreen onBack={() => setScreen('home')} />}
+      {screen === 'leaderboard' && <LeaderboardScreen onBack={() => setScreen('home')} />}
     </div>
   );
 }

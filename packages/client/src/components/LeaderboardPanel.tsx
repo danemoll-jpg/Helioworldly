@@ -4,16 +4,17 @@ import { QuizMode } from '@helioworldly/engine';
 import { formatDuration, formatPercent } from '../lib/format.js';
 import { getStoredPlayerName, isValidPlayerName, setStoredPlayerName } from '../lib/playerName.js';
 import { isFirebaseConfigured } from '../network/firebase.js';
-import { LeaderboardRecord, comboKey, fetchLeaderboard, submitScore } from '../network/globalLeaderboard.js';
+import { LeaderboardRecord, comboKey, fetchLeaderboard, submitScore, topScores } from '../network/globalLeaderboard.js';
 
 export interface LeaderboardPanelProps {
   mode: QuizMode;
   system: string;
   view: string;
   currentRun?: { percentCorrect: number; totalElapsedMs: number };
+  title?: string;
 }
 
-export function LeaderboardPanel({ mode, system, view, currentRun }: LeaderboardPanelProps) {
+export function LeaderboardPanel({ mode, system, view, currentRun, title = 'Global leaderboard' }: LeaderboardPanelProps) {
   const key = comboKey(mode, system, view);
   const [records, setRecords] = useState<LeaderboardRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +30,7 @@ export function LeaderboardPanel({ mode, system, view, currentRun }: Leaderboard
     let cancelled = false;
     fetchLeaderboard()
       .then((all) => {
-        if (cancelled) return;
-        const top = all
-          .filter((r) => r.comboKey === key)
-          .sort((a, b) => b.percentCorrect - a.percentCorrect || a.totalElapsedMs - b.totalElapsedMs)
-          .slice(0, 10);
-        setRecords(top);
+        if (!cancelled) setRecords(topScores(all, key, 10));
       })
       .catch(() => {
         if (!cancelled) setError(true);
@@ -68,7 +64,7 @@ export function LeaderboardPanel({ mode, system, view, currentRun }: Leaderboard
   if (!isFirebaseConfigured) {
     return (
       <div className="leaderboard-panel">
-        <h3>Global leaderboard</h3>
+        <h3>{title}</h3>
         <p className="leaderboard-note">Not live yet — this turns on once the app is published.</p>
       </div>
     );
@@ -76,7 +72,7 @@ export function LeaderboardPanel({ mode, system, view, currentRun }: Leaderboard
 
   return (
     <div className="leaderboard-panel">
-      <h3>Global leaderboard</h3>
+      <h3>{title}</h3>
       {loading && <p>Loading…</p>}
       {error && <p className="leaderboard-note">Couldn't reach the leaderboard right now.</p>}
       {!loading && !error && records.length === 0 && (
@@ -86,7 +82,8 @@ export function LeaderboardPanel({ mode, system, view, currentRun }: Leaderboard
         <ol className="leaderboard-list">
           {records.map((r, i) => (
             <li key={i}>
-              <span>{r.playerName}</span>
+              <span className="leaderboard-rank">{i + 1}</span>
+              <span className="leaderboard-name">{r.playerName}</span>
               <span>{formatPercent(r.percentCorrect)}</span>
               <span>{formatDuration(r.totalElapsedMs)}</span>
             </li>
