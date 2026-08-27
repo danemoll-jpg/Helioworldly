@@ -159,6 +159,5 @@ repo up fresh: check `git log` against what's actually live before assuming they
 
 ## Status / next step
 
-Tiers 1 (Planets) and 2 (Moons) are built and verified locally; Tier 2 is staged for its own
-deliberate push. Next: Tier 3 (Surface features, including the Apollo landing sites) — tracked
-in [BACKLOG.md](./BACKLOG.md) so nothing gets lost.
+Tiers 1 (Planets) and 2 (Moons) are built and live. Next: Tier 3 (Surface features, including
+the Apollo landing sites) — tracked in [BACKLOG.md](./BACKLOG.md) so nothing gets lost.

@@ -35,10 +35,9 @@ coordinates, including the Apollo landing sites.
 - [x] Planet hit-region coordinates (`packages/engine/src/planets.ts`) — measured against NASA's
   own solar-system illustration (PIA11800) via labeled coordinate-grid crops, confirmed with an
   overlay render.
-- [ ] **Push Tier 2 (Moons) live.** Built and verified locally (43→71 engine tests, full
-  Playwright click-through of every new collection) but not yet pushed — the user is rationing
-  Netlify deploys and wants to push deliberately rather than after every change. Ready whenever
-  they say go.
+- [x] **Push Tier 2 (Moons) live.** Deployed 2026-08-27, verified on the live site (a full
+  Saturn-moons quiz session, zero console errors) as well as locally beforehand (71 engine
+  tests, Playwright click-through of every new collection).
 
 ## Smaller polish (not blocking)
 
