@@ -34,15 +34,19 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-// Keeps the viewBox from being panned entirely out of view — a generous margin (half the
-// viewBox) rather than a hard edge-lock, so it stays forgiving rather than fiddly.
+// Keeps the image from being panned out of view. The margin is a small slack (10% of the
+// viewBox) on top of however far the *scaled* image actually extends past the frame — not a
+// flat fraction of the viewBox regardless of zoom. A flat margin let the image be dragged mostly
+// off-screen even at 1:1 zoom (where the image exactly fills the frame and there's nothing
+// legitimate to pan to), which is what let it disappear into a corner. At higher zoom, this
+// still allows panning across the whole zoomed-in image, just not losing it entirely.
 function clampTranslate(t: Transform, viewBox: ViewBox): Transform {
-  const marginX = viewBox.width / 2;
-  const marginY = viewBox.height / 2;
+  const marginX = viewBox.width * 0.1;
+  const marginY = viewBox.height * 0.1;
   return {
     scale: t.scale,
-    tx: clamp(t.tx, -viewBox.width * t.scale + marginX, viewBox.width - marginX),
-    ty: clamp(t.ty, -viewBox.height * t.scale + marginY, viewBox.height - marginY),
+    tx: clamp(t.tx, viewBox.width - marginX - viewBox.width * t.scale, marginX),
+    ty: clamp(t.ty, viewBox.height - marginY - viewBox.height * t.scale, marginY),
   };
 }
 
