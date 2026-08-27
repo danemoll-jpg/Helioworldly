@@ -1,18 +1,24 @@
-import { QuizMode } from '@helioworldly/engine';
+import { CollectionMeta, QuizMode } from '@helioworldly/engine';
+import { CollectionPicker } from './CollectionPicker.js';
 import { QUIZ_MODE_LABELS } from '../lib/quizConfig.js';
 
 export interface SetupScreenProps {
   mode: QuizMode;
   onModeChange: (mode: QuizMode) => void;
+  collection: CollectionMeta;
+  onCollectionChange: (collection: CollectionMeta) => void;
   onStart: () => void;
   onBack: () => void;
 }
 
 const MODES: QuizMode[] = ['findIt', 'typeIt', 'multipleChoice'];
 
-export function SetupScreen({ mode, onModeChange, onStart, onBack }: SetupScreenProps) {
+export function SetupScreen({ mode, onModeChange, collection, onCollectionChange, onStart, onBack }: SetupScreenProps) {
   return (
     <div className="screen setup-screen">
+      <h2>What do you want to quiz on?</h2>
+      <CollectionPicker system={collection.system} view={collection.view} onChange={onCollectionChange} />
+
       <h2>Choose a mode</h2>
       <div className="mode-options">
         {MODES.map((m) => (

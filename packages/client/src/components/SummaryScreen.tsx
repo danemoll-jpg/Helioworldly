@@ -1,4 +1,4 @@
-import { QuizMode } from '@helioworldly/engine';
+import { BodyView, CelestialSystem, QuizMode } from '@helioworldly/engine';
 import { formatDuration, formatPercent } from '../lib/format.js';
 import { LeaderboardPanel } from './LeaderboardPanel.js';
 
@@ -12,11 +12,13 @@ export interface QuizSummary {
 export interface SummaryScreenProps {
   summary: QuizSummary;
   mode: QuizMode;
+  system: CelestialSystem;
+  view: BodyView;
   onPlayAgain: () => void;
   onHome: () => void;
 }
 
-export function SummaryScreen({ summary, mode, onPlayAgain, onHome }: SummaryScreenProps) {
+export function SummaryScreen({ summary, mode, system, view, onPlayAgain, onHome }: SummaryScreenProps) {
   return (
     <div className="screen summary-screen">
       <h2>Session complete</h2>
@@ -27,8 +29,8 @@ export function SummaryScreen({ summary, mode, onPlayAgain, onHome }: SummaryScr
 
       <LeaderboardPanel
         mode={mode}
-        system="planets"
-        view="planets"
+        system={system}
+        view={view}
         currentRun={{ percentCorrect: summary.percentCorrect, totalElapsedMs: summary.totalElapsedMs }}
       />
 

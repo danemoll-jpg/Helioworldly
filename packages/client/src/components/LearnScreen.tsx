@@ -1,16 +1,29 @@
-// Browse-everything mode: pick a planet from the list (or tap it on the diagram) to see its
-// blurb, no scoring or pressure.
+// Browse-everything mode: pick a collection, then pick a body from the list (or tap it on the
+// diagram) to see its blurb, no scoring or pressure.
 import { useState } from 'react';
-import { PLANETS, PLANETS_IMAGE_URL, PLANETS_VIEWBOX } from '@helioworldly/engine';
+import { BODIES_BY_VIEW, CollectionMeta, VIEWS } from '@helioworldly/engine';
 import { CelestialDiagram } from './CelestialDiagram.js';
+import { CollectionPicker } from './CollectionPicker.js';
 
 export interface LearnScreenProps {
   onBack: () => void;
 }
 
+const DEFAULT_COLLECTION: CollectionMeta = { system: 'planets', view: 'planets', label: 'Planets' };
+
 export function LearnScreen({ onBack }: LearnScreenProps) {
-  const [selectedId, setSelectedId] = useState<string>(PLANETS[0].id);
-  const selected = PLANETS.find((p) => p.id === selectedId);
+  const [collection, setCollection] = useState<CollectionMeta>(DEFAULT_COLLECTION);
+  const bodies = BODIES_BY_VIEW[collection.view] ?? [];
+  const { imageUrl, viewBox } = VIEWS[collection.view];
+
+  const [selectedId, setSelectedId] = useState<string>(bodies[0]?.id ?? '');
+  const selected = bodies.find((b) => b.id === selectedId) ?? bodies[0];
+
+  function handleCollectionChange(next: CollectionMeta) {
+    setCollection(next);
+    const nextBodies = BODIES_BY_VIEW[next.view] ?? [];
+    setSelectedId(nextBodies[0]?.id ?? '');
+  }
 
   return (
     <div className="screen learn-screen">
@@ -21,12 +34,14 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
         <span>Learn</span>
       </header>
 
+      <CollectionPicker system={collection.system} view={collection.view} onChange={handleCollectionChange} />
+
       <CelestialDiagram
-        bodies={PLANETS}
-        viewBox={PLANETS_VIEWBOX}
-        imageUrl={PLANETS_IMAGE_URL}
+        bodies={bodies}
+        viewBox={viewBox}
+        imageUrl={imageUrl}
         onBodyClick={setSelectedId}
-        highlightedId={selectedId}
+        highlightedId={selected?.id}
       />
 
       {selected && (
@@ -37,14 +52,14 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
       )}
 
       <div className="learn-list">
-        {PLANETS.map((p) => (
+        {bodies.map((b) => (
           <button
-            key={p.id}
+            key={b.id}
             type="button"
-            className={`learn-list-item ${p.id === selectedId ? 'learn-list-item-selected' : ''}`}
-            onClick={() => setSelectedId(p.id)}
+            className={`learn-list-item ${b.id === selected?.id ? 'learn-list-item-selected' : ''}`}
+            onClick={() => setSelectedId(b.id)}
           >
-            {p.name}
+            {b.name}
           </button>
         ))}
       </div>

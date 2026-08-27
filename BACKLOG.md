@@ -1,13 +1,14 @@
 # Backlog
 
-## Tier 2 — Moons
+## Tier 2 — Moons ✅ built (not yet deployed — see publishing checklist)
 
-One `BodyView` per planet with major moons, each a montage photo with the moons as named
-regions (same "one photo, several named sub-regions" pattern Tier 1 used for the planets):
-Jupiter's Galilean moons (Io, Europa, Ganymede, Callisto), Saturn's major moons (Titan,
-Enceladus, Mimas, Rhea, Iapetus, ...), Mars's Phobos/Deimos, Earth's Moon. JPL Photojournal
-(photojournal.jpl.nasa.gov) is the source for per-planet moon montages — see the README's
-"Image sourcing" section.
+One `BodyView` per planet with notable moons: Jupiter's Galilean moons (Io, Europa, Ganymede,
+Callisto), Saturn's major moons (Titan, Dione, Tethys, Mimas, Enceladus, Rhea), Uranus's five
+largest (Oberon, Titania, Umbriel, Ariel, Miranda), Neptune's Triton, Mars's Phobos/Deimos,
+Earth's Moon — 19 moons across 6 views, all real NASA/JPL photos. Setup/Learn/Leaderboard all
+gained a collection picker (`CollectionPicker`, driven by the engine's `COLLECTIONS` list) to
+choose Planets vs. a given planet's moons; Mastery shows every collection as its own section
+instead of needing a picker; Daily Challenge now draws from every body, not just planets.
 
 ## Tier 3 — Surface features
 
@@ -28,15 +29,16 @@ coordinates, including the Apollo landing sites.
   reachable (verified 2026-08-26 via a REST read — `leaderboard/` came back 200 with an empty,
   queryable collection). Double check the exact contents of `/firestore.rules` were pasted into
   the console's Rules tab and Published — that's the one step I can't verify from here.
-- [ ] **Connect the repo in Netlify.** `netlify.toml` is already set up (root-level build,
-  publishes `packages/client/dist`) — just needs the repo connected to a Netlify site.
-- [ ] **Add a Helioworldly card to the game hub** (dansgamehub.netlify.app / its repo) once
-  there's a real deployed URL to link to. Needs access to that repo — it isn't public, so point
-  me at it (local path or an invite) when this is ready.
-- [x] Planet hit-region coordinates (`packages/engine/src/planets.ts`) were measured via an
-  automated windowed color/bounding-box pass over the downloaded image and confirmed by
-  rendering a semi-transparent overlay on the real photo. Good enough for v1; still worth a
-  final once-over in an actual browser at various zoom levels if any region feels off in play.
+- [x] **Connect the repo in Netlify.** Live at https://helioworldly.netlify.app/.
+- [x] **Add a Helioworldly card to the game hub.** Live on dansgamehub.netlify.app, pointing at
+  the URL above.
+- [x] Planet hit-region coordinates (`packages/engine/src/planets.ts`) — measured against NASA's
+  own solar-system illustration (PIA11800) via labeled coordinate-grid crops, confirmed with an
+  overlay render.
+- [ ] **Push Tier 2 (Moons) live.** Built and verified locally (43→71 engine tests, full
+  Playwright click-through of every new collection) but not yet pushed — the user is rationing
+  Netlify deploys and wants to push deliberately rather than after every change. Ready whenever
+  they say go.
 
 ## Smaller polish (not blocking)
 

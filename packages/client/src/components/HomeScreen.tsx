@@ -17,8 +17,8 @@ export function HomeScreen({ onPlay, onLearn, onMastery, onDaily, onLeaderboard 
       <div className="start-screen__card">
         <h1>☀️ Helioworldly</h1>
         <p className="start-screen__subtitle">
-          Learn the solar system — pan and zoom NASA/JPL's own solar-system illustration to find
-          the planet you're asked about, untimed. All 8 planets, with moons and named surface
+          Learn the solar system — pan and zoom real NASA/JPL photos to find the planet or moon
+          you're asked about, untimed. All 8 planets and 19 major moons, with named surface
           features (including the Apollo landing sites) planned next.
         </p>
 
@@ -26,22 +26,22 @@ export function HomeScreen({ onPlay, onLearn, onMastery, onDaily, onLeaderboard 
           <button type="button" className="home-screen__choice" onClick={onDaily}>
             <span className="home-screen__choice-emoji">🔥</span>
             <span className="home-screen__choice-title">Daily challenge</span>
-            <span className="home-screen__choice-sub">One shared planet a day — everyone gets the same one.</span>
+            <span className="home-screen__choice-sub">One shared body a day — everyone gets the same one.</span>
           </button>
           <button type="button" className="home-screen__choice" onClick={onLearn}>
             <span className="home-screen__choice-emoji">📖</span>
-            <span className="home-screen__choice-title">Learn the planets</span>
-            <span className="home-screen__choice-sub">Browse all 8 planets, one at a time — named and shown in full, no quiz pressure.</span>
+            <span className="home-screen__choice-title">Learn</span>
+            <span className="home-screen__choice-sub">Browse the planets or any planet's moons — named and shown in full, no quiz pressure.</span>
           </button>
           <button type="button" className="home-screen__choice" onClick={onPlay}>
             <span className="home-screen__choice-emoji">🪐</span>
             <span className="home-screen__choice-title">Start a quiz</span>
-            <span className="home-screen__choice-sub">Find it, type it, or pick it from 4 choices — untimed.</span>
+            <span className="home-screen__choice-sub">Pick planets or a planet's moons, then find it, type it, or pick it from 4 choices.</span>
           </button>
           <button type="button" className="home-screen__choice" onClick={onMastery}>
             <span className="home-screen__choice-emoji">🗺️</span>
             <span className="home-screen__choice-title">Mastery map</span>
-            <span className="home-screen__choice-sub">Every planet colored by how you've actually done — your personal weak spots.</span>
+            <span className="home-screen__choice-sub">Every planet and moon colored by how you've actually done — your personal weak spots.</span>
           </button>
           <button type="button" className="home-screen__choice" onClick={onLeaderboard}>
             <span className="home-screen__choice-emoji">🏆</span>

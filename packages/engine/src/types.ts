@@ -6,11 +6,18 @@
 // BACKLOG.md and slot into the same shape once built.
 export type CelestialSystem = 'planets' | 'moons' | 'surface';
 
-// A single diagram/photo a quiz can be played against. Tier 1 has exactly one view ('planets').
-// Later tiers add one view per planet (moons) or per body (surface features) — same reason
-// Innerworldly's organs system needed two views (digestive/urinary) instead of one: a single
-// flat image can't show every body in that system at once.
-export type BodyView = 'planets';
+// A single diagram/photo a quiz can be played against. Tier 1 had exactly one view ('planets').
+// Tier 2 adds one view per planet that has notable moons — same reason Innerworldly's organs
+// system needed two views (digestive/urinary) instead of one: a single flat image can't show
+// every body in a system at once. Mercury and Venus have no moons, so no view for them.
+export type BodyView =
+  | 'planets'
+  | 'moons-earth'
+  | 'moons-mars'
+  | 'moons-jupiter'
+  | 'moons-saturn'
+  | 'moons-uranus'
+  | 'moons-neptune';
 
 export interface Point {
   x: number;

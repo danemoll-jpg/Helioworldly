@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { PLANETS, PLANETS_IMAGE_URL, PLANETS_VIEWBOX, QuizMode } from '@helioworldly/engine';
+import { BODIES_BY_SYSTEM, BODIES_BY_VIEW, CelestialSystem, BodyView, QuizMode, VIEWS } from '@helioworldly/engine';
 import { useQuiz } from '../hooks/useQuiz.js';
 import { CelestialDiagram } from './CelestialDiagram.js';
 
@@ -13,12 +13,18 @@ export interface QuizSummary {
 
 export interface QuizScreenProps {
   mode: QuizMode;
+  system: CelestialSystem;
+  view: BodyView;
   onFinish: (summary: QuizSummary) => void;
   onExit: () => void;
 }
 
-export function QuizScreen({ mode, onFinish, onExit }: QuizScreenProps) {
-  const quiz = useQuiz(PLANETS, mode);
+export function QuizScreen({ mode, system, view, onFinish, onExit }: QuizScreenProps) {
+  const bodies = BODIES_BY_VIEW[view] ?? [];
+  const { imageUrl, viewBox } = VIEWS[view];
+  const choicePool = BODIES_BY_SYSTEM[system] ?? bodies;
+
+  const quiz = useQuiz(bodies, mode, choicePool);
   const [feedback, setFeedback] = useState<{ bodyId: string; correct: boolean } | null>(null);
   const [typedAnswer, setTypedAnswer] = useState('');
 
@@ -75,9 +81,9 @@ export function QuizScreen({ mode, onFinish, onExit }: QuizScreenProps) {
       {mode !== 'findIt' && <h2 className="quiz-prompt">What is this?</h2>}
 
       <CelestialDiagram
-        bodies={PLANETS}
-        viewBox={PLANETS_VIEWBOX}
-        imageUrl={PLANETS_IMAGE_URL}
+        bodies={bodies}
+        viewBox={viewBox}
+        imageUrl={imageUrl}
         onBodyClick={mode === 'findIt' ? handleFindItClick : undefined}
         highlightedId={mode !== 'findIt' ? quiz.currentBody?.id : undefined}
         feedback={feedback}

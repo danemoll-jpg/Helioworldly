@@ -1,8 +1,9 @@
 # Helioworldly
 
-A solar-system companion to Worldly/Outworldly/Innerworldly. **Tier 1 (Planets) is built** — pan
-and zoom NASA/JPL's solar-system montage, find/name/pick the planet you're asked about, no
-timer, no pressure. Moons and surface features (see [BACKLOG.md](./BACKLOG.md)) are next.
+A solar-system companion to Worldly/Outworldly/Innerworldly. **Tiers 1 and 2 are built** — pan
+and zoom real NASA/JPL photos, find/name/pick the planet or moon you're asked about, no timer,
+no pressure. All 8 planets and 19 major moons across 6 planets. Surface features (see
+[BACKLOG.md](./BACKLOG.md)) are next.
 
 ## The idea
 
@@ -117,17 +118,23 @@ system specifically, not deep-sky/celestial-sphere content).
 npm-workspaces monorepo, same shape as Worldly/Outworldly/Innerworldly:
 
 - **`packages/engine`** — pure TypeScript, no UI/rendering dependencies. Planet data
-  (`planets.ts`), hit-region geometry (`geometry.ts`), lenient answer matching (`matching.ts`),
-  quiz session tracking (`session.ts`), mastery/weak-spot tracking (`stats.ts`/`weighting.ts`),
-  and the Daily Challenge picker (`dailyChallenge.ts`).
-- **`packages/client`** — React 18 + Vite. `CelestialDiagram` (pan/zoom SVG surface rendering
-  the montage photo plus its hit-region overlays) plus the screens that drive a quiz session
-  (Home → Setup → Quiz → Summary), Learn, Mastery, and Daily Challenge. The photo lives at
-  `packages/client/public/assets/planets-montage.jpg`.
+  (`planets.ts`) and moon data (`moons.ts`, one seed array per planet-with-moons view), hit-
+  region geometry (`geometry.ts`), lenient answer matching (`matching.ts`), quiz session
+  tracking (`session.ts`), mastery/weak-spot tracking (`stats.ts`/`weighting.ts`), and the Daily
+  Challenge picker (`dailyChallenge.ts`). `moons.ts` also exports `COLLECTIONS` — the single
+  source of truth for "which collections exist" (Planets, plus one per planet's moons) that the
+  client's pickers iterate over.
+- **`packages/client`** — React 18 + Vite. `CelestialDiagram` (pan/zoom SVG surface rendering a
+  view's photo plus its hit-region overlays) plus the screens that drive a quiz session
+  (Home → Setup → Quiz → Summary), Learn, Mastery, Daily Challenge, and Leaderboard.
+  `CollectionPicker` (a reusable pill list driven by `COLLECTIONS`) lets Setup/Learn/Leaderboard
+  switch between Planets and any planet's moons; Mastery shows every collection as its own
+  section instead. Photos live under `packages/client/public/assets/`.
 
-Three quiz modes: **Find it** (named a planet, tap it on the diagram), **Type its name** (a
-planet is highlighted, type its name — typo-tolerant), and **Multiple choice** (highlighted
-planet, pick from 4 name buttons).
+Three quiz modes: **Find it** (named a body, tap it on the diagram), **Type its name** (a body
+is highlighted, type its name — typo-tolerant), and **Multiple choice** (highlighted body, pick
+from 4 name buttons — distractors are drawn from the whole system, not just the current view, so
+small views like Neptune's one moon still get real wrong answers to choose from).
 
 ## Development
 
@@ -140,13 +147,18 @@ npm run build  # production build — this is what Netlify runs
 
 ## Deployment / publishing status
 
-See [BACKLOG.md](./BACKLOG.md)'s publishing checklist — Netlify config (`netlify.toml`) and
-Firestore rules (`firestore.rules`) are already in the repo, but the real Firebase project and
-Netlify site connection are one-time manual steps still to do before this goes live. Until then
-the app works fully offline (localStorage); only the global leaderboard panel stays in a
-"not live yet" state.
+Live at https://helioworldly.netlify.app/, Firebase leaderboard included — see
+[BACKLOG.md](./BACKLOG.md)'s publishing checklist for what that took. Netlify auto-deploys on
+push to `main`, but pushes are deliberate, not automatic — see "Deploying" below.
+
+## Deploying
+
+The user is on a Netlify plan with a limited number of monthly builds, so changes get committed
+locally and pushed only when they say so, rather than after every change. If you're picking this
+repo up fresh: check `git log` against what's actually live before assuming they match.
 
 ## Status / next step
 
-Tier 1 (Planets) is built. Next: Tier 2 (Moons), then Tier 3 (Surface features, including the
-Apollo landing sites) — tracked in [BACKLOG.md](./BACKLOG.md) so nothing gets lost.
+Tiers 1 (Planets) and 2 (Moons) are built and verified locally; Tier 2 is staged for its own
+deliberate push. Next: Tier 3 (Surface features, including the Apollo landing sites) — tracked
+in [BACKLOG.md](./BACKLOG.md) so nothing gets lost.

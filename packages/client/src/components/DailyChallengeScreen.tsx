@@ -2,7 +2,7 @@
 // against a highlighted-but-unnamed region — same body for every player today.
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import { PLANETS_IMAGE_URL, PLANETS_VIEWBOX } from '@helioworldly/engine';
+import { VIEWS } from '@helioworldly/engine';
 import { useDailyChallenge } from '../hooks/useDailyChallenge.js';
 import { CelestialDiagram } from './CelestialDiagram.js';
 
@@ -13,6 +13,7 @@ export interface DailyChallengeScreenProps {
 export function DailyChallengeScreen({ onBack }: DailyChallengeScreenProps) {
   const daily = useDailyChallenge();
   const [typedAnswer, setTypedAnswer] = useState('');
+  const { imageUrl, viewBox } = VIEWS[daily.body.view];
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -35,8 +36,8 @@ export function DailyChallengeScreen({ onBack }: DailyChallengeScreenProps) {
 
       <CelestialDiagram
         bodies={[daily.body]}
-        viewBox={PLANETS_VIEWBOX}
-        imageUrl={PLANETS_IMAGE_URL}
+        viewBox={viewBox}
+        imageUrl={imageUrl}
         highlightedId={daily.body.id}
         interactive={false}
       />

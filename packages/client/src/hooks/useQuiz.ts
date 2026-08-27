@@ -38,7 +38,11 @@ function buildSession(bodies: CelestialBodyDef[], mode: QuizMode, stats: StatsMa
   return startSession(bodies.map((b) => b.id), mode, stats);
 }
 
-export function useQuiz(bodies: CelestialBodyDef[], mode: QuizMode): UseQuizResult {
+export function useQuiz(
+  bodies: CelestialBodyDef[],
+  mode: QuizMode,
+  choicePool: CelestialBodyDef[] = bodies,
+): UseQuizResult {
   const statsRef = useRef<StatsMap>(loadStats());
   const questionStartRef = useRef<number>(Date.now());
 
@@ -47,10 +51,12 @@ export function useQuiz(bodies: CelestialBodyDef[], mode: QuizMode): UseQuizResu
   const currentId = engineCurrentBodyId(session);
   const currentBody = currentId ? BODY_BY_ID[currentId] : undefined;
 
+  // Distractors come from choicePool, not necessarily `bodies` — a small view (e.g. Neptune's
+  // one moon) wouldn't have enough of its own bodies to fill 4 choices otherwise.
   const choices = useMemo(() => {
     if (mode !== 'multipleChoice' || !currentBody) return [];
-    return buildChoices(currentBody, bodies);
-  }, [mode, currentBody, bodies]);
+    return buildChoices(currentBody, choicePool);
+  }, [mode, currentBody, choicePool]);
 
   const commit = useCallback(
     (correct: boolean) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QuizMode } from '@helioworldly/engine';
+import { CollectionMeta, QuizMode } from '@helioworldly/engine';
 import { HomeScreen } from './components/HomeScreen.js';
 import { SetupScreen } from './components/SetupScreen.js';
 import { QuizScreen, QuizSummary } from './components/QuizScreen.js';
@@ -11,9 +11,12 @@ import { LeaderboardScreen } from './components/LeaderboardScreen.js';
 
 type Screen = 'home' | 'setup' | 'quiz' | 'summary' | 'learn' | 'mastery' | 'daily' | 'leaderboard';
 
+const DEFAULT_COLLECTION: CollectionMeta = { system: 'planets', view: 'planets', label: 'Planets' };
+
 export function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [mode, setMode] = useState<QuizMode>('findIt');
+  const [collection, setCollection] = useState<CollectionMeta>(DEFAULT_COLLECTION);
   const [lastSummary, setLastSummary] = useState<QuizSummary | null>(null);
 
   return (
@@ -29,12 +32,21 @@ export function App() {
       )}
 
       {screen === 'setup' && (
-        <SetupScreen mode={mode} onModeChange={setMode} onStart={() => setScreen('quiz')} onBack={() => setScreen('home')} />
+        <SetupScreen
+          mode={mode}
+          onModeChange={setMode}
+          collection={collection}
+          onCollectionChange={setCollection}
+          onStart={() => setScreen('quiz')}
+          onBack={() => setScreen('home')}
+        />
       )}
 
       {screen === 'quiz' && (
         <QuizScreen
           mode={mode}
+          system={collection.system}
+          view={collection.view}
           onFinish={(summary) => {
             setLastSummary(summary);
             setScreen('summary');
@@ -44,7 +56,14 @@ export function App() {
       )}
 
       {screen === 'summary' && lastSummary && (
-        <SummaryScreen summary={lastSummary} mode={mode} onPlayAgain={() => setScreen('quiz')} onHome={() => setScreen('home')} />
+        <SummaryScreen
+          summary={lastSummary}
+          mode={mode}
+          system={collection.system}
+          view={collection.view}
+          onPlayAgain={() => setScreen('quiz')}
+          onHome={() => setScreen('home')}
+        />
       )}
 
       {screen === 'learn' && <LearnScreen onBack={() => setScreen('home')} />}

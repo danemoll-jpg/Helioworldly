@@ -1,7 +1,8 @@
 // One shared question a day, same body for every player (Wordle-style) — see engine's
-// dailyChallenge.ts for why. Tier 1 draws only from the planets; later tiers widen the pool.
+// dailyChallenge.ts for why. Draws from every body across every collection (planets and moons
+// alike), so which collection today's pick belongs to varies day to day.
 import { useMemo, useState } from 'react';
-import { CelestialBodyDef, PLANETS, dailyBodyId, dailyDateKey, isCloseMatch } from '@helioworldly/engine';
+import { ALL_BODIES, CelestialBodyDef, dailyBodyId, dailyDateKey, isCloseMatch } from '@helioworldly/engine';
 
 const COMPLETED_KEY = 'helioworldly.dailyChallenge.completedDate';
 
@@ -19,8 +20,8 @@ export function useDailyChallenge(): UseDailyChallengeResult {
   const dateKey = useMemo(() => dailyDateKey(today), [today]);
 
   const body = useMemo(() => {
-    const id = dailyBodyId(PLANETS.map((p) => p.id), today);
-    return PLANETS.find((p) => p.id === id) ?? PLANETS[0];
+    const id = dailyBodyId(ALL_BODIES.map((b) => b.id), today);
+    return ALL_BODIES.find((b) => b.id === id) ?? ALL_BODIES[0];
   }, [today]);
 
   const [alreadyCompletedToday, setAlreadyCompletedToday] = useState(() => {
