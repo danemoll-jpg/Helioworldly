@@ -36,7 +36,13 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
 
       <CollectionPicker system={collection.system} view={collection.view} onChange={handleCollectionChange} />
 
+      {/* key={collection.view} forces a remount (and a fresh pan/zoom transform) on collection
+          switch — without it, CelestialDiagram stays mounted across the swap and reuses its old
+          pan/zoom state, which was clamped against the *previous* view's viewBox. That state can
+          be arbitrarily wrong for the new one (different dimensions), landing the player on a
+          panned-and-zoomed view of empty background with no obvious way to tell what happened. */}
       <CelestialDiagram
+        key={collection.view}
         bodies={bodies}
         viewBox={viewBox}
         imageUrl={imageUrl}

@@ -34,19 +34,41 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-// Keeps the image from being panned out of view. The margin is a small slack (10% of the
-// viewBox) on top of however far the *scaled* image actually extends past the frame — not a
-// flat fraction of the viewBox regardless of zoom. A flat margin let the image be dragged mostly
-// off-screen even at 1:1 zoom (where the image exactly fills the frame and there's nothing
-// legitimate to pan to), which is what let it disappear into a corner. At higher zoom, this
-// still allows panning across the whole zoomed-in image, just not losing it entirely.
+// Keeps the subject actually on screen while panning — two constraints, the tighter of the two
+// wins on each side:
+//
+// 1. A small flat margin (MARGIN_FRACTION) on top of however far the *scaled* image extends past
+//    the frame. Needed at low zoom: right at 1:1, the image exactly fills the frame and there's
+//    nothing legitimate to pan to, so without this the whole image could be dragged off-screen.
+// 2. A small square centered on the viewBox (CENTER_SLACK_FRACTION, sized off the viewBox's own
+//    short axis) that can never be panned fully out of the viewport. Needed at high zoom: every
+//    one of these apps' diagrams centers its subject (the planet/skeleton/map center) in the
+//    middle of a viewBox that's otherwise mostly empty margin (starfield, ocean, whatever), so
+//    letting the pan range grow strictly with #1's flat margin all the way up to "every pixel of
+//    the enlarged image including its corners" lets you reach a corner that's almost entirely
+//    that empty margin — technically still "in view" by #1's own logic, but visually
+//    indistinguishable from the image having disappeared.
+//
+// #1 alone is the tighter constraint at scale 1 (nothing to gain from #2 yet); #2 alone is
+// tighter once zoomed in enough that its fixed-size box no longer fits inside #1's now-enormous
+// range. Taking the tighter bound on each side gets both right without either fighting the other.
+const MARGIN_FRACTION = 0.1;
+const CENTER_SLACK_FRACTION = 0.08;
+
 function clampTranslate(t: Transform, viewBox: ViewBox): Transform {
-  const marginX = viewBox.width * 0.1;
-  const marginY = viewBox.height * 0.1;
+  const { width: W, height: H } = viewBox;
+  const { scale } = t;
+
+  const marginX = W * MARGIN_FRACTION;
+  const marginY = H * MARGIN_FRACTION;
+  const slack = Math.min(W, H) * CENTER_SLACK_FRACTION;
+  const centerX = W / 2;
+  const centerY = H / 2;
+
   return {
-    scale: t.scale,
-    tx: clamp(t.tx, viewBox.width - marginX - viewBox.width * t.scale, marginX),
-    ty: clamp(t.ty, viewBox.height - marginY - viewBox.height * t.scale, marginY),
+    scale,
+    tx: clamp(t.tx, Math.max(W - marginX - W * scale, (slack - centerX) * scale), Math.min(marginX, W - (centerX + slack) * scale)),
+    ty: clamp(t.ty, Math.max(H - marginY - H * scale, (slack - centerY) * scale), Math.min(marginY, H - (centerY + slack) * scale)),
   };
 }
 
@@ -58,14 +80,33 @@ export function usePanZoom({ viewBox, minScale = 1, maxScale = 8 }: PanZoomOptio
   const dragStart = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const pinchStart = useRef<{ distance: number; scale: number; midpoint: { x: number; y: number } } | null>(null);
 
-  const toSvgPoint = useCallback((clientX: number, clientY: number) => {
+  // The <svg> has a viewBox but no preserveAspectRatio override, so it defaults to "xMidYMid
+  // meet": the browser fits the whole viewBox inside the element using ONE uniform scale (set by
+  // whichever axis is more constrained) and letterboxes the other axis, rather than stretching
+  // width/height independently. Converting a client-pixel delta to viewBox units has to use that
+  // same single scale — using rect.width and rect.height separately (two different ratios,
+  // whenever the element's aspect ratio doesn't match the viewBox's) makes panning track the
+  // cursor at the wrong rate on whichever axis is letterboxed, and — combined with clampTranslate
+  // — let that axis's clamp bound be reached by less on-screen drag than intended.
+  const svgUnitsPerClientPx = useCallback(() => {
     const svg = svgRef.current;
-    if (!svg) return { x: clientX, y: clientY };
+    if (!svg) return { x: 1, y: 1 };
     const rect = svg.getBoundingClientRect();
-    const scaleX = viewBox.width / rect.width;
-    const scaleY = viewBox.height / rect.height;
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    const scale = Math.max(viewBox.width / rect.width, viewBox.height / rect.height);
+    return { x: scale, y: scale, rect };
   }, [viewBox.height, viewBox.width]);
+
+  const toSvgPoint = useCallback((clientX: number, clientY: number) => {
+    const { x: scale, rect } = svgUnitsPerClientPx();
+    if (!rect) return { x: clientX, y: clientY };
+    // With a uniform scale, the fitted content is centered on whichever axis has leftover space
+    // (the letterbox bars) — offset by that before scaling, or the origin is off by half a bar.
+    const contentWidth = viewBox.width / scale;
+    const contentHeight = viewBox.height / scale;
+    const offsetX = rect.left + (rect.width - contentWidth) / 2;
+    const offsetY = rect.top + (rect.height - contentHeight) / 2;
+    return { x: (clientX - offsetX) * scale, y: (clientY - offsetY) * scale };
+  }, [svgUnitsPerClientPx, viewBox.height, viewBox.width]);
 
   const onPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -103,18 +144,15 @@ export function usePanZoom({ viewBox, minScale = 1, maxScale = 8 }: PanZoomOptio
     if (dragStart.current) {
       const dxClient = e.clientX - dragStart.current.x;
       const dyClient = e.clientY - dragStart.current.y;
-      const svg = svgRef.current;
-      const rect = svg?.getBoundingClientRect();
-      const scaleX = rect ? viewBox.width / rect.width : 1;
-      const scaleY = rect ? viewBox.height / rect.height : 1;
+      const { x: scale } = svgUnitsPerClientPx();
       setTransform((prev) =>
         clampTranslate(
-          { ...prev, tx: dragStart.current!.tx + dxClient * scaleX, ty: dragStart.current!.ty + dyClient * scaleY },
+          { ...prev, tx: dragStart.current!.tx + dxClient * scale, ty: dragStart.current!.ty + dyClient * scale },
           viewBox,
         ),
       );
     }
-  }, [minScale, maxScale, viewBox]);
+  }, [minScale, maxScale, viewBox, svgUnitsPerClientPx]);
 
   const endPointer = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     pointers.current.delete(e.pointerId);
