@@ -20,24 +20,55 @@ history, and can be re-sourced from NASA's site if that approach is ever revisit
 
 ## Tier 2 (Moons) sources
 
-Jupiter's, Saturn's, and Uranus's moon views use official NASA/JPL "family portrait" montages
-directly as the shipped asset (`public/assets/moons-{jupiter,saturn,uranus}.jpg`) — no local
-source copy needed since nothing was cropped out of them:
-- **Jupiter** — PIA09352 "Jupiter's Moons: Family Portrait" (New Horizons/LORRI). Credit:
-  NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute.
-- **Saturn** — PIA01482 "Saturn System Montage" (Voyager 1 data). Credit: NASA/JPL.
-- **Uranus** — PIA01361 "Uranus - Montage of Uranus' Five Largest Satellites" (Voyager 2).
-  Credit: NASA/JPL.
+v2 of this tier composited every moon view by hand instead of using pre-made NASA "family
+portrait" montages: each moon is its own individual full-disk NASA/JPL photo, placed onto a
+starfield with hand-drawn tilted orbit rings around a planet. Rationale: the old montage-based
+version (and before that, v1's individually-cropped Tier 1 planets image) both drew feedback that
+crops looked visibly rough — this approach keeps every source photo whole and does the
+compositing/masking itself, so there's no cropped-rectangle artifact to hide.
 
-Neptune, Mars, and Earth's views needed compositing (no ready-made montage), so their source
-photos are kept here:
-- **`triton-source.jpg`** — PIA00317, global color mosaic of Triton (Voyager 2). Credit:
-  NASA/JPL/USGS. Resized down for `public/assets/moons-neptune.jpg`.
-- **`phobos-source.jpg`** — PIA10368 (Mars Reconnaissance Orbiter/HiRISE). Credit: NASA/JPL-
-  Caltech/University of Arizona.
-- **`deimos-source.jpg`** — PIA11826 (HiRISE); only the left of its two side-by-side views is
-  used. Credit: NASA/JPL-Caltech/University of Arizona. Phobos + Deimos are composited onto a
-  plain black canvas for `public/assets/moons-mars.jpg` — no masking needed since Tier 1's
-  cropping problems only ever came from touching/overlapping bodies, and these two don't touch.
-- **`moon-source.jpg`** — NASA image library asset `GSFC_20171208_Archive_e000868`, "Full Moon"
-  (Goddard Space Flight Center). Resized down for `public/assets/moons-earth.jpg`.
+v2's planet was still a crop out of `public/assets/solar-system.jpg` (Tier 1's source
+illustration) though, and that illustration draws a decorative orbit-grid *through* some
+planets' disc — faint but visible on Uranus especially, no matter how the crop mask was tuned,
+since it's baked into the source pixels rather than being a cropping mistake. v3 (current)
+replaced that with real NASA/JPL full-disk planet photos on plain black — see `planets-src/`
+below — cut out the exact same way the moons are. See `build_moons.py` in this folder, which
+regenerates all six `public/assets/moons-*.jpg` from the raw photos in `moons-src/` and
+`planets-src/`.
+
+### Planets (`planets-src/`)
+
+All real NASA/JPL(-Caltech) mission imagery, full disk on black, from NASA's photojournal
+(science.nasa.gov/photojournal):
+
+- **`jupiter.jpg`** — PIA02873, "High Resolution Globe of Jupiter" (Cassini, true-color
+  simulated view). Credit: NASA/JPL/Space Science Institute.
+- **`saturn.jpg`** — PIA05389, "Saturn in Color" (Cassini narrow-angle camera, natural color,
+  March 27, 2004). Credit: NASA/JPL/Space Science Institute.
+- **`uranus_dual.jpg`** — PIA00032, "Uranus in True and False Color" (Voyager 2). This ships as a
+  true-color/false-color pair side by side; only the left (true-color) half is used, via
+  `precrop` in `build_moons.py`. Credit: NASA/JPL.
+- **`neptune.jpg`** — PIA01492, "Neptune Full Disk View" (Voyager 2, last whole-planet images).
+  Credit: NASA/JPL.
+- **`mars.jpg`** — PIA00407, "Global Color Views of Mars" (~1,000 Viking Orbiter images, global
+  color mosaic). Credit: NASA/JPL/USGS.
+- **`earth.jpg`** — PIA18033 (VIIRS/Suomi NPP Blue Marble, digitally projected onto a globe).
+  Credit: NASA/NOAA.
+
+All 19 moon photos in `moons-src/` are real NASA/JPL(-Caltech) mission imagery pulled from NASA's
+photojournal (science.nasa.gov/photojournal, photojournal.jpl.nasa.gov). Exact PIA catalog
+numbers confirmed this pass: Europa `europa-try2.jpg` = PIA01295, Titania `titania-full.jpg` =
+PIA01979, Ariel `ariel-full.jpg` = PIA00037, Miranda `miranda-full.jpg` = PIA01490, Umbriel
+`umbriel-full.jpg` = PIA00040, Oberon `oberon1.jpg` = PIA00034, Titan `titan-panels.jpg` =
+PIA06227 (only the left/natural-color panel is used, via `precrop` in `build_moons.py`). The
+remaining files (Io, Ganymede, Callisto, Mimas, Enceladus, Tethys, Dione, Rhea, Triton, Phobos,
+Deimos, the Moon) were sourced the same way in an earlier part of this session whose exact
+fetch URLs weren't preserved — re-verify their PIA numbers on photojournal before reusing them
+outside this game.
+
+`triton-source.jpg`, `phobos-source.jpg`, `deimos-source.jpg`, and `moon-source.jpg` are leftover
+from the older montage-composite version described above (Triton/Phobos/Deimos/Moon on a plain
+canvas) and are no longer read by `build_moons.py`; kept only for history alongside their old
+credits (PIA00317 Triton/Voyager 2/NASA-JPL-USGS; PIA10368 Phobos/MRO-HiRISE/NASA-JPL-Caltech-
+University of Arizona; PIA11826 Deimos, same credit; `GSFC_20171208_Archive_e000868` "Full Moon"
+Goddard Space Flight Center).
